@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+  db:
+    image: mongo
+    container_name: nestmongo
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: carAPI
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: '123456'
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+  carsapp:
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cars-api-docker
+    container_name: carsapp
+    restart: always
+    tty: true
+    ports:
+      - "3003:3003"
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www:cached
+    command: npm run start:dev
